@@ -9,23 +9,21 @@ clefs = [('&', Pitch G 4),
          ('}', Pitch C 4),
          ('@', Pitch F 3)]
 
-main = getContents >>= play . readSheet
+main = getContents >>= mapM_ play . readSheet
 
-play :: [Double] -> IO ()
-play [] = return ()
-play (freq : rest) = do
-    let freqStr = show $ round freq
+play :: Pitch -> IO ()
+play pitch = do
+    let freqStr = show . round $ frequency pitch
     -- Escape sequences set frequency/duration of bell
     -- (See `man console_codes`)
     putStr $ "\ESC[10;" ++ freqStr ++ "]\ESC[11;400]\BEL"
     putStrLn freqStr
     threadDelay 500000
-    play rest
 
-readSheet :: String -> [Double]
+readSheet :: String -> [Pitch]
 readSheet = readColumn Nothing . transpose . reverse . lines
 
-readColumn :: Maybe Clef -> [String] -> [Double]
+readColumn :: Maybe Clef -> [String] -> [Pitch]
 readColumn clef [] = []
 readColumn clef (column : rest)
     | Just newClef <- findClef column
@@ -33,8 +31,8 @@ readColumn clef (column : rest)
     | Just (Clef clefPitch clefLine) <- clef,
       Just noteLine <- findIndex isNote column
     = let offset = noteLine - clefLine
-          freq = frequency $ clefPitch `transposeLines` offset
-      in freq : readColumn clef rest
+          pitch = clefPitch `transposeLines` offset
+      in pitch : readColumn clef rest
     | otherwise = readColumn clef rest
 
 findClef :: [Char] -> Maybe Clef
