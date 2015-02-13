@@ -3,6 +3,7 @@ module MusicBox where
 import Control.Concurrent (threadDelay)
 import Data.List
 import Data.Maybe
+import Data.Monoid
 
 clefs = [('&', Pitch G 4),
          ('}', Pitch C 4),
@@ -61,10 +62,8 @@ type Line = Int
 data Clef = Clef Pitch Line
 
 instance Ord Pitch where
-    compare (Pitch n1 o1) (Pitch n2 o2)
-        | o1 /= o2 = compare o1 o2
-        | n1 /= n2 = compare n1 n2
-        | otherwise = EQ
+    compare (Pitch n1 o1) (Pitch n2 o2) =
+        mappend (compare o1 o2) (compare n1 n2)
 
 scale :: Pitch -> Bool -> [Pitch]
 scale pitch@(Pitch note octave) ascending =
@@ -90,6 +89,7 @@ natural :: Pitch -> Bool
 natural (Pitch note octave) = note `elem` [A, B, C, D, E, F, G]
 
 frequency :: Pitch -> Double
-frequency pitch = 440 * freqRatio^^(interval refPitch pitch)
+frequency pitch = freqRatio^^(interval refPitch pitch) * refFreq
     where freqRatio = 2 ** (1/12)
           refPitch = Pitch A 4
+          refFreq = 440
