@@ -65,16 +65,16 @@ instance Enum Pitch where
     toEnum i =
         Pitch (toEnum $ i `mod` noteCount) (i `div` noteCount)
     fromEnum (Pitch note octave) =
-        (fromEnum note) + octave * noteCount
+        fromEnum note + octave * noteCount
 
 noteCount = length [C ..]
 
 transposeSemitones :: Pitch -> Int -> Pitch
 transposeSemitones pitch semitones =
-    toEnum $ (fromEnum pitch) + semitones
+    toEnum $ fromEnum pitch + semitones
 
 transposeLines :: Pitch -> Int -> Pitch
-transposeLines pitch lines = staff !! (abs lines)
+transposeLines pitch lines = staff !! abs lines
     where staff = filter natural $ scale pitch
           scale = iterate (if ascending then succ else pred)
           ascending = lines > 0
@@ -85,6 +85,6 @@ natural (Pitch note _) = note `elem` [A, B, C, D, E, F, G]
 frequency :: Pitch -> Double
 frequency pitch = freqRatio^^(interval pitch refPitch) * refFreq
     where freqRatio = 2 ** (1/12)
-          interval p1 p2 = (fromEnum p1) - (fromEnum p2)
+          interval p1 p2 = fromEnum p1 - fromEnum p2
           refPitch = Pitch A 4
           refFreq = 440
