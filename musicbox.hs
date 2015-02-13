@@ -56,10 +56,8 @@ data Note = C | Csharp |
             A | Asharp |
             B deriving (Bounded, Enum, Eq, Ord)
 
-type Octave = Int
-data Pitch = Pitch Note Octave deriving Eq
-type Line = Int
-data Clef = Clef Pitch Line
+data Pitch = Pitch {note::Note, octave::Int} deriving Eq
+data Clef = Clef {pitch::Pitch, line::Int}
 
 instance Ord Pitch where
     compare (Pitch n1 o1) (Pitch n2 o2) =
