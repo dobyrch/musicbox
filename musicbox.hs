@@ -37,14 +37,14 @@ readColumn clef (column : rest)
 
 findClef :: [Char] -> Maybe Clef
 findClef column = listToMaybe [Clef p l | p <- ps, l <- ls]
-    where ps = mapMaybe (`lookup` clefs) column
+    where ps = mapMaybe (flip lookup clefs) column
           ls = findIndices isClef column
 
 isClef :: Char -> Bool
-isClef = (`elem` map fst clefs)
+isClef = flip elem $ map fst clefs
 
 isNote :: Char -> Bool
-isNote = (`elem` "dp")
+isNote = flip elem "dp"
 
 data Note = C | Csharp |
             D | Dsharp |
